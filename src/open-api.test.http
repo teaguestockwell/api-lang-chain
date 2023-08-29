@@ -1,0 +1,5 @@
+@url = https://raw.githubusercontent.com/oasis-tcs/odata-openapi/main/examples/Northwind-V3.openapi3.json
+
+###
+GET https://validator.swagger.io/validator/debug?url={{url}}
+Accept: application/json
