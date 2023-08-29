@@ -1,6 +1,6 @@
 {
   "name": "api-lang-chain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "produce a natural language interface for your api",
   "license": "MIT",
   "typings": "dist/index.d.ts",
