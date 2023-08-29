@@ -34,7 +34,7 @@
     "test": "tsc && node --require tslib --test build/**/*.test.js",
     "lint": "prettier -c src && eslint src",
     "lint:fix": "prettier --write src/",
-    "prepare": "yarn build"
+    "prepublishOnly": "yarn build"
   },
   "husky": {
     "hooks": {
