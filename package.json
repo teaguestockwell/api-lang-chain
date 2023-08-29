@@ -1,0 +1,61 @@
+{
+  "name": "api-lang-chain",
+  "version": "0.0.1",
+  "description": "produce a natural language interface for your api",
+  "license": "MIT",
+  "typings": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.umd.js"
+  },
+  "source": "./src/index.ts",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teaguestockwell/api-lang-chain"
+  },
+  "bugs": {
+    "url": "https://github.com/teaguestockwell/api-lang-chain/issues"
+  },
+  "homepage": "https://github.com/teaguestockwell/api-lang-chain",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "microbundle --sourcemap false --tsconfig tsconfig.json --visualize",
+    "test": "tsdx test",
+    "lint": "tsdx lint src",
+    "prepare": "yarn build"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "author": {
+    "name": "Teague Stockwell",
+    "email": "tsappdevelopment@gmail.com",
+    "url": "https://teaguestockwell.com"
+  },
+  "devDependencies": {
+    "babel-jest": "^29.2.2",
+    "husky": "^8.0.1",
+    "microbundle": "^0.15.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.2"
+  }
+}
