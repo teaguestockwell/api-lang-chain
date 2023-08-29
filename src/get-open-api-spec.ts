@@ -5,23 +5,25 @@ export type GetOpenSpecOptions = {
 };
 
 export const getOpenApiSpec = async (options: GetOpenSpecOptions) => {
-  const {openApiUrl, httpClient, logger} = options;
+  const { openApiUrl, httpClient, logger } = options;
   try {
-    const response = await httpClient(openApiUrl, {headers: {Accept: 'application/json'}})
+    const response = await httpClient(openApiUrl, {
+      headers: { Accept: 'application/json' },
+    });
     if (!response.ok) {
-      logger(getOpenApiSpec.name, response.status)
-      throw new Error(getOpenApiSpec.name + " " + response.status)
+      logger(getOpenApiSpec.name, response.status);
+      throw new Error(getOpenApiSpec.name + ' ' + response.status);
     }
-    let json
+    let json;
     try {
-      json = await response.json()
+      json = await response.json();
     } catch (e) {
-      logger(getOpenApiSpec.name, 'json parse error', e)
-      throw e
+      logger(getOpenApiSpec.name, 'json parse error', e);
+      throw e;
     }
+    return json;
   } catch (e) {
-    logger(getOpenApiSpec.name, 'unknown error', e)
-    throw e
-  } 
-}
-
+    logger(getOpenApiSpec.name, 'unknown error', e);
+    throw e;
+  }
+};

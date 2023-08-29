@@ -11,12 +11,14 @@ export const validateOpenApi = async (
 ): Promise<void> => {
   const { openApiUrl, httpClient, logger } = options;
   try {
-    const response0 = await httpClient(validationUrl, {headers: { Accept: 'application/json' }});
+    const response0 = await httpClient(validationUrl, {
+      headers: { Accept: 'application/json' },
+    });
     if (response0.status !== 400) {
       logger(validateOpenApi.name, 'skipping', openApiUrl);
       return;
     }
-    
+
     const response1 = await httpClient(validateOpenApi + `?url=${openApiUrl}`, {
       headers: { Accept: 'application/json' },
     });
@@ -41,6 +43,6 @@ export const validateOpenApi = async (
     logger(validateOpenApi.name, 'valid', openApiUrl);
   } catch (e) {
     logger(validateOpenApi.name, 'unknown error', e);
-    throw e
+    throw e;
   }
 };
