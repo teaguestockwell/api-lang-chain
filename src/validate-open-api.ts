@@ -1,10 +1,11 @@
+const validationUrl = 'https://validator.swagger.io/validator/debug';
+const ns = 'validateOpenApi';
+
 export type ValidateOpenApiOptions = {
   openApiUrl: string;
   httpClient: typeof global.fetch;
   logger: typeof global.console.log;
 };
-
-const validationUrl = 'https://validator.swagger.io/validator/debug';
 
 export const validateOpenApi = async (
   options: ValidateOpenApiOptions
@@ -15,15 +16,15 @@ export const validateOpenApi = async (
       headers: { Accept: 'application/json' },
     });
     if (response0.status !== 400) {
-      logger(validateOpenApi.name, 'skipping', openApiUrl);
+      logger(ns, 'skipping', openApiUrl);
       return;
     }
 
-    const response1 = await httpClient(validateOpenApi + `?url=${openApiUrl}`, {
+    const response1 = await httpClient(validationUrl + `?url=${openApiUrl}`, {
       headers: { Accept: 'application/json' },
     });
     if (!response1.ok) {
-      logger(validateOpenApi.name, 'skipping', openApiUrl);
+      logger(ns, 'skipping', openApiUrl);
       return;
     }
     let json: undefined | { schemaValidationMessages: unknown[] };
@@ -33,16 +34,16 @@ export const validateOpenApi = async (
         throw 'skip';
       }
     } catch (e) {
-      logger(validateOpenApi.name, 'skipping', openApiUrl, e);
+      logger(ns, 'skipping', openApiUrl, e);
       return;
     }
     if (json.schemaValidationMessages.length) {
-      logger(validateOpenApi.name, 'invalid', json, openApiUrl);
-      throw new Error(validateOpenApi.name + ' invalid');
+      logger(ns, 'invalid', json, openApiUrl);
+      throw new Error(ns + ' invalid');
     }
-    logger(validateOpenApi.name, 'valid', openApiUrl);
+    logger(ns, 'valid', openApiUrl);
   } catch (e) {
-    logger(validateOpenApi.name, 'unknown error', e);
+    logger(ns, 'unknown error', e);
     throw e;
   }
 };

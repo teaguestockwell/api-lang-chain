@@ -14,13 +14,34 @@ export type CreateOptions = {
    * override the default logger (global.console.log)
    */
   logger?: typeof global.console.log;
+  /**
+   * azure > openai > keys and endpoints > key
+   */
+  azureOpenAiKey: string;
+  /**
+   * azure > openai > keys and endpoints > endpoint
+   */
+  azureOpenAiEndpoint: string;
 };
 
 /**
  * produce a natural language client for your api
  */
 export const create = async (options: CreateOptions) => {
-  const { openApiUrl, httpClient = fetch, logger = console.log } = options;
+  const {
+    openApiUrl,
+    httpClient = fetch,
+    logger = console.log,
+    azureOpenAiKey,
+    azureOpenAiEndpoint,
+  } = options;
+  
+  if (!azureOpenAiEndpoint) {
+    throw 'undefined azureOpenAiEndpoint';
+  }
+  if (!azureOpenAiKey) {
+    throw 'undefined azureOpenAiKey';
+  }
 
   await validateOpenApi({ openApiUrl, httpClient, logger });
   const spec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
