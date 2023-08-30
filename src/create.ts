@@ -35,7 +35,7 @@ export const create = async (options: CreateOptions) => {
     azureOpenAiKey,
     azureOpenAiEndpoint,
   } = options;
-  
+
   if (!azureOpenAiEndpoint) {
     throw 'undefined azureOpenAiEndpoint';
   }
