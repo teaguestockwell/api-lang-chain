@@ -23,6 +23,7 @@ export const getOpenApiSpec = async (options: GetOpenSpecOptions) => {
       logger(ns, 'json parse error', e);
       throw e;
     }
+    logger(ns, 'fetched and parsed', json);
     return json;
   } catch (e) {
     logger(ns, 'unknown error', e);
