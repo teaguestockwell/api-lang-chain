@@ -1,0 +1,8 @@
+# build me the url to get a list of the top 3 categories in alpha desc order where the name contains a
+
+### 1st try: invalid odata prompt - contains not supported
+GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$top=3&$orderby=CategoryName desc&$filter=contains(CategoryName,'a')&$select=CategoryID,CategoryName,Description,Picture
+Accept: application/json
+### 2nd try: after piping error to chatgtp
+GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$top=3&$orderby=CategoryName desc&$filter=indexof(tolower(CategoryName),'a') ge 0&$select=CategoryID,CategoryName,Description,Picture
+Accept: application/json
