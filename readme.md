@@ -11,7 +11,6 @@
 [gh-shield]: https://img.shields.io/badge/-GitHub-black.svg?logo=github&colorB=555
 [gh-url]: https://github.com/teaguestockwell/api-lang-chain
 
-<!-- PROJECT LOGO -->
 <br />
 <p align="center">
   <a href="https://github.com/teaguestockwell/api-lang-chain">
@@ -25,3 +24,7 @@
     <a href="https://github.com/teaguestockwell/api-lang-chain/issues">Report Bug</a>
   </p>
 </p
+
+- Given the endpoint to the open api definitions of an odata service, and a token generator, 
+- When you call a the result of te create function with natural language,
+- Then build and execute a query / mutation plan on that service.

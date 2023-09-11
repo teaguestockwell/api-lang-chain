@@ -3,7 +3,7 @@ import { validateOpenApi } from './validate-open-api';
 
 export type CreateOptions = {
   /**
-   * url to fetch the open api definition of the service
+   * url to fetch the open api definition of the service, for now this must be public read
    */
   openApiUrl: string;
   /**
