@@ -1,0 +1,41 @@
+{
+  "id": "chatcmpl-guid",
+  "created": "1970-01-20T14:41:07.270Z",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "functionCall": {
+          "name": "get_current_weather",
+          "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
+        }
+      },
+      "index": 0,
+      "finishReason": "function_call",
+      "contentFilterResults": {}
+    }
+  ],
+  "promptFilterResults": [
+    {
+      "promptIndex": 0,
+      "contentFilterResults": {
+        "sexual": {
+          "severity": "safe",
+          "filtered": false
+        },
+        "violence": {
+          "severity": "safe",
+          "filtered": false
+        },
+        "hate": {
+          "severity": "safe",
+          "filtered": false
+        },
+        "selfHarm": {
+          "severity": "safe",
+          "filtered": false
+        }
+      }
+    }
+  ]
+}
