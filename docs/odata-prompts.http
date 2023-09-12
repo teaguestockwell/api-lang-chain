@@ -6,3 +6,8 @@ Accept: application/json
 ### 2nd try: after piping error to chatgtp
 GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$top=3&$orderby=CategoryName desc&$filter=indexof(tolower(CategoryName),'a') ge 0&$select=CategoryID,CategoryName,Description,Picture
 Accept: application/json
+
+# return url path for this: "{"paths":{"/Categories":{"get":{}}}}" with these args: "{"$top":3,"$filter":"substringof('a', CategoryName)"}"
+###
+GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$top=3&$filter=substringof('a', CategoryName)
+Accept: application/json

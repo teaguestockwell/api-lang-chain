@@ -12,7 +12,7 @@ export type GetFunctionFromSpec = {
 export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
   const { logger, spec } = options;
   const functions: FunctionDefinition[] = [];
-  const meta = { success: 0, error: 0, id: Date.now() };
+  const meta = { success: 0, error: 0, id: Date.now(), count: 0 };
 
   for (const pathK of Object.keys(spec.paths)) {
     let pathParams: undefined | Array<{ name: string; schema: any }> =
@@ -45,7 +45,7 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
           return propBag;
         })();
         const next: FunctionDefinition = {
-          name: pathKK + ' ' + pathK,
+          name: meta.count + '',
           description: summary,
           parameters: {
             type: 'object',
@@ -65,6 +65,7 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
       } catch (e) {
         logger(ns, 'skipping function', e, spec.paths[pathK][pathKK]);
       }
+      meta.count++
     }
   }
 

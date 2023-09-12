@@ -1,6 +1,7 @@
 import { getOpenApiSpec } from './get-open-api-spec';
 import { getFunctionsFromSpec } from './get-functions-from-spec';
 import { validateOpenApi } from './validate-open-api';
+import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 const ns = 'create';
 
 export type CreateOptions = {
@@ -63,7 +64,22 @@ export const create = async (options: CreateOptions) => {
 
   await validateOpenApi({ openApiUrl, httpClient, logger });
   const spec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
-  const functions = getFunctionsFromSpec({ spec, logger });
+  const functions = getFunctionsFromSpec({ spec, logger }).slice(0, 5);
 
-  return { spec, functions };
+  const callFunction = async (content: string) => {
+    const client = new OpenAIClient(
+      azureOpenAiEndpoint,
+      new AzureKeyCredential(azureOpenAiKey)
+    );
+    const res = await client.getChatCompletions(
+      deploymentId,
+      [{ role: 'user', content }],
+      {
+        functions,
+      }
+    );
+    return res;
+  };
+
+  return { spec, functions, callFunction };
 };

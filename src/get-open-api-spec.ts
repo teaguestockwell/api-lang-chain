@@ -23,7 +23,7 @@ export const getOpenApiSpec = async (options: GetOpenSpecOptions) => {
       json = await response.json();
       logger(ns, 'fetched and parsed', json);
       const spec = await Parser.dereference(json);
-      logger(ns, 'hydrated', spec);
+      logger(ns, 'dereferenced', spec);
       return spec as OpenApiSpec;
     } catch (e) {
       logger(ns, 'json parse error', e);

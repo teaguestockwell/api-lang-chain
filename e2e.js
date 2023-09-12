@@ -54,7 +54,12 @@ const main = async () => {
   // }
   // console.log(cyclic);
 
-  console.log(JSON.stringify(client.functions, null, 2))
+
+  console.log(JSON.stringify(client.functions.slice(0,5), null, 2))
+
+  const prompt = "show me 3 categories that have the letter 'a'"
+  const res = await client.callFunction(prompt)
+  console.log(JSON.stringify(res, null, 2))
 };
 
 main()

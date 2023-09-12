@@ -2,3 +2,4 @@
 - https://learn.deeplearning.ai/langchain-chat-with-your-data/lesson/1/introduction
 - https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/openai/openai/samples/v1-beta/typescript/src/functions.ts
 - https://swagger.io/docs/specification/basic-structure/
+- https://json-schema.org/
