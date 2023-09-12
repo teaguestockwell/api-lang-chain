@@ -12,6 +12,9 @@ export type GetFunctionFromSpec = {
 export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
   const { logger, spec } = options;
   const functions: FunctionDefinition[] = [];
+  const paths: string[] = [];
+  const methods: string[] = [];
+  const openApiDefs: object[] = [];
   const meta = { success: 0, error: 0, id: Date.now(), count: 0 };
 
   for (const pathK of Object.keys(spec.paths)) {
@@ -26,7 +29,8 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
         continue;
       }
       try {
-        const { parameters, summary, requestBody } = spec.paths[pathK][pathKK];
+        const args = spec.paths[pathK][pathKK];
+        const { parameters, summary, requestBody } = args;
         const propBag = (() => {
           if (parameters) {
             return parameters;
@@ -60,16 +64,19 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
             ),
           },
         };
+        paths.push(pathK);
+        methods.push(pathKK.toUpperCase());
+        openApiDefs.push(args);
         functions.push(next);
         meta.success++;
       } catch (e) {
         logger(ns, 'skipping function', e, spec.paths[pathK][pathKK]);
       }
-      meta.count++
+      meta.count++;
     }
   }
 
-  logger(ns, 'built functions', meta, functions);
+  logger(ns, 'built functions', meta, functions, openApiDefs);
 
-  return functions;
+  return { functions, paths, openApiDefs, methods };
 };

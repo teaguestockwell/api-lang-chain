@@ -2,6 +2,7 @@ import { getOpenApiSpec } from './get-open-api-spec';
 import { getFunctionsFromSpec } from './get-functions-from-spec';
 import { validateOpenApi } from './validate-open-api';
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
+import { executeFunction } from './execute-request';
 const ns = 'create';
 
 export type CreateOptions = {
@@ -37,7 +38,7 @@ export type CreateOptions = {
 export const create = async (options: CreateOptions) => {
   const {
     httpClient = fetch,
-    logger = console.log,
+    logger = () => {},
     openApiUrl,
     azureOpenAiKey,
     azureOpenAiEndpoint,
@@ -64,21 +65,51 @@ export const create = async (options: CreateOptions) => {
 
   await validateOpenApi({ openApiUrl, httpClient, logger });
   const spec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
-  const functions = getFunctionsFromSpec({ spec, logger }).slice(0, 5);
+  const { functions, paths, openApiDefs, methods } = getFunctionsFromSpec({
+    spec,
+    logger,
+  });
 
   const callFunction = async (content: string) => {
-    const client = new OpenAIClient(
+    const openAiClient = new OpenAIClient(
       azureOpenAiEndpoint,
       new AzureKeyCredential(azureOpenAiKey)
     );
-    const res = await client.getChatCompletions(
+    const res = await openAiClient.getChatCompletions(
       deploymentId,
-      [{ role: 'user', content }],
+      [
+        {
+          role: 'user',
+          content:
+            'only use well supported odata features, for example dont use contains: ' +
+            content,
+        },
+      ],
       {
-        functions,
+        functions: functions.slice(0, 5),
       }
     );
-    return res;
+
+    const fnCall = res.choices[0].message?.functionCall;
+    if (!fnCall) {
+      logger(ns, 'no function to call', JSON.stringify(fnCall, null, 2));
+      return;
+    }
+    logger(ns, 'function suggested', fnCall);
+    const index = +fnCall.name;
+    logger(ns, 'execute function', index);
+    return await executeFunction({
+      logger,
+      httpClient,
+      openAiClient,
+      deploymentId,
+      functionDefinition: functions[index],
+      functionArguments: fnCall.arguments,
+      openApiDefinition: openApiDefs[index],
+      path: paths[index],
+      method: methods[index],
+      baseUrl: spec.servers[0].url,
+    });
   };
 
   return { spec, functions, callFunction };
