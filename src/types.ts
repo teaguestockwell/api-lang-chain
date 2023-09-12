@@ -15,8 +15,10 @@ export type OpenApiSpec = {
       [lowercaseHttpVerb: string]: {
         summary: string;
         tags: string[];
-        parameters?: { $ref?: string }[];
-        requestBody?: { $ref?: string }[];
+        parameters?: { name: string; schema: unknown }[];
+        requestBody?: {
+          content?: { 'application/json': { schema: { properties: object } } };
+        };
       };
     };
   };
