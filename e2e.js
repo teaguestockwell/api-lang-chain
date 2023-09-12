@@ -12,14 +12,21 @@ const getEnv = () => {
   return { azureOpenAiKey, azureOpenAiEndpoint, deploymentId };
 };
 
+const logger = (...args) => {
+  if (args[0] === 'create') {
+    console.log(JSON.stringify(args, null, 2));
+  }
+};
+
 const main = async () => {
   const client = await create({
     ...getEnv(),
+    logger,
     openApiUrl:
       'https://raw.githubusercontent.com/oasis-tcs/odata-openapi/main/examples/Northwind-V3.openapi3.json',
   });
 
-  const prompt = "show me 3 categories that have the letter 'a'";
+  const prompt = "when is the next taylor swift concert?";
   const res = await client.callFunction(prompt);
   console.log(JSON.stringify(res, null, 2));
 };
