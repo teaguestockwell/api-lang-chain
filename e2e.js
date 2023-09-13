@@ -32,7 +32,7 @@ const main = async () => {
       'https://raw.githubusercontent.com/oasis-tcs/odata-openapi/main/examples/Northwind-V3.openapi3.json',
   });
 
-  const prompt = 'what are the names of all my products?';
+  const prompt = 'write me a haiku with category names that have the letter a in them';
   const res = await client.promptApiChat(prompt);
   console.log(JSON.stringify(res, null, 2));
 };

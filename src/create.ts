@@ -4,7 +4,12 @@ import { getOpenApiSpec } from './get-open-api-spec';
 import { getFunctionsFromSpec } from './get-functions-from-spec';
 import { validateOpenApi } from './validate-open-api';
 import { OpenAIClient, AzureKeyCredential, ChatMessage } from '@azure/openai';
-import { findLast, omitLargeProperties, toQueryString } from './utils';
+import {
+  findLast,
+  interpolateUrlParams,
+  omitLargeProperties,
+  toQueryString,
+} from './utils';
 const ns = 'create';
 
 export type CreateOptions = {
@@ -136,9 +141,16 @@ export const create = async (options: CreateOptions) => {
         });
 
         const fn = functions[+msg.functionCall.name];
+        // assuming a well formed api:
+        // - it does not expect args in request body for get
+        // - it does not expect the same args in path and query string: /event(1)?eventId=1
         if (fn.method === 'GET') {
-          const qs = toQueryString(JSON.parse(msg.functionCall.arguments));
-          const url = apiSpec.servers[0].url + fn.path + qs;
+          const { interpolatedPath, omittedArgs } = interpolateUrlParams(
+            fn.path,
+            JSON.parse(msg.functionCall.arguments)
+          );
+          const qs = toQueryString(omittedArgs);
+          const url = apiSpec.servers[0] + interpolatedPath + qs;
           const httpRes = await httpClient(url, {
             headers: { Accept: 'application/json' },
             method: fn.method,

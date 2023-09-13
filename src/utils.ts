@@ -45,3 +45,21 @@ export const findLast = <T>(arr: T[], predicate: (t: T) => boolean) => {
   }
   return;
 };
+
+export const interpolateUrlParams = (
+  path: string,
+  args: Record<string, unknown>
+) => {
+  let interpolatedPath = path;
+  const omittedArgs = { ...args };
+
+  for (const [k, v] of Object.entries(args)) {
+    const toBeReplaced = '{' + k + '}';
+    while (interpolatedPath.includes(toBeReplaced)) {
+      delete omittedArgs[k];
+      interpolatedPath = interpolatedPath.replace(toBeReplaced, v + '');
+    }
+  }
+
+  return { interpolatedPath, omittedArgs };
+};
