@@ -33,7 +33,7 @@ const main = async () => {
   });
 
   const prompt = 'what are the names of all my products?';
-  const res = await client.callFunction(prompt);
+  const res = await client.promptApiChat(prompt);
   console.log(JSON.stringify(res, null, 2));
 };
 

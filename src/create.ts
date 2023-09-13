@@ -4,7 +4,7 @@ import { getOpenApiSpec } from './get-open-api-spec';
 import { getFunctionsFromSpec } from './get-functions-from-spec';
 import { validateOpenApi } from './validate-open-api';
 import { OpenAIClient, AzureKeyCredential, ChatMessage } from '@azure/openai';
-import { omitLargeProperties, toQueryString } from './utils';
+import { findLast, omitLargeProperties, toQueryString } from './utils';
 const ns = 'create';
 
 export type CreateOptions = {
@@ -71,13 +71,15 @@ export const create = async (options: CreateOptions) => {
   }
 
   await validateOpenApi({ openApiUrl, httpClient, logger });
-  const spec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
-  const functionsMeta = getFunctionsFromSpec({
-    spec,
+  const apiSpec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
+  const functions = getFunctionsFromSpec({
+    spec: apiSpec,
     logger,
   });
 
-  const callFunction = async (content: string) => {
+  const promptApiChat = async (
+    content: string
+  ): Promise<{ msg?: string; json?: string }> => {
     const messages: ChatMessage[] = [];
     const appendMessage = (msg: ChatMessage) => {
       logger(ns, 'msg', msg);
@@ -99,7 +101,7 @@ export const create = async (options: CreateOptions) => {
           deploymentId,
           messages,
           {
-            functions: functionsMeta.slice(0, 5).map((e) => e.openAiDef),
+            functions: functions.slice(0, 5).map((e) => e.openAiDef),
           }
         );
         const msg = chatRes.choices[0].message;
@@ -120,7 +122,12 @@ export const create = async (options: CreateOptions) => {
             });
             continue;
           }
-          return msg.content;
+          return {
+            msg: msg.content ?? undefined,
+            json:
+              findLast(messages, (m) => m.role === 'function')?.content ??
+              undefined,
+          };
         }
         appendMessage({
           role: msg.role,
@@ -128,10 +135,10 @@ export const create = async (options: CreateOptions) => {
           content: msg.functionCall.arguments,
         });
 
-        const fn = functionsMeta[+msg.functionCall.name];
+        const fn = functions[+msg.functionCall.name];
         if (fn.method === 'GET') {
           const qs = toQueryString(JSON.parse(msg.functionCall.arguments));
-          const url = spec.servers[0].url + fn.path + qs;
+          const url = apiSpec.servers[0].url + fn.path + qs;
           const httpRes = await httpClient(url, {
             headers: { Accept: 'application/json' },
             method: fn.method,
@@ -159,8 +166,11 @@ export const create = async (options: CreateOptions) => {
     }
 
     logger(ns, 'aborted - max attempts used');
-    return;
+    return {
+      msg: undefined,
+      json: undefined,
+    };
   };
 
-  return { spec, functions: functionsMeta, callFunction };
+  return { apiSpec, functions, promptApiChat };
 };

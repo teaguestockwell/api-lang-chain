@@ -35,3 +35,13 @@ export const omitLargeProperties = (text: string) => {
     return text;
   }
 };
+
+// todo: find out why this Array.prototype.findLast is not available
+export const findLast = <T>(arr: T[], predicate: (t: T) => boolean) => {
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (predicate(arr[i])) {
+      return arr[i];
+    }
+  }
+  return;
+};
