@@ -14,7 +14,13 @@ const getEnv = () => {
 
 const logger = (...args) => {
   if (args[0] === 'create') {
-    console.log(JSON.stringify(args, null, 2));
+    for (let i = 1; i < args.length; i++) {
+      try {
+        console.log(JSON.stringify(JSON.parse(args[i]), null, 2));
+      } catch {
+        console.log(args[i]);
+      }
+    }
   }
 };
 
@@ -26,7 +32,7 @@ const main = async () => {
       'https://raw.githubusercontent.com/oasis-tcs/odata-openapi/main/examples/Northwind-V3.openapi3.json',
   });
 
-  const prompt = "when is the next taylor swift concert?";
+  const prompt = 'what are the names of all my products?';
   const res = await client.callFunction(prompt);
   console.log(JSON.stringify(res, null, 2));
 };

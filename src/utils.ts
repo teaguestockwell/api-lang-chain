@@ -17,3 +17,21 @@ export const fromQueryString = (s: string) => {
   }
   return obj;
 };
+
+export const omitLargeProperties = (text: string) => {
+  if (text.length < 500) {
+    return text;
+  }
+  try {
+    return JSON.stringify(
+      JSON.parse(text, (_k, v) => {
+        if (typeof v === 'string' && v.length > 250) {
+          return;
+        }
+        return v;
+      })
+    );
+  } catch {
+    return text;
+  }
+};

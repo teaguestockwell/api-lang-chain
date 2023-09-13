@@ -11,3 +11,11 @@ Accept: application/json
 ###
 GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$top=3&$filter=substringof('a', CategoryName)
 Accept: application/json
+
+###
+GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?%24top=1&%24select=Description
+Accept: application/json
+
+###
+GET https://services.odata.org/V3/Northwind/Northwind.svc/Categories?$count
+Accept: application/json

@@ -4,7 +4,7 @@ import { getOpenApiSpec } from './get-open-api-spec';
 import { getFunctionsFromSpec } from './get-functions-from-spec';
 import { validateOpenApi } from './validate-open-api';
 import { OpenAIClient, AzureKeyCredential, ChatMessage } from '@azure/openai';
-import { toQueryString } from './utils';
+import { omitLargeProperties, toQueryString } from './utils';
 const ns = 'create';
 
 export type CreateOptions = {
@@ -32,6 +32,10 @@ export type CreateOptions = {
    * azure > openai > model deployments
    */
   deploymentId: string;
+  /**
+   * the max number of iterations the model will be used to answer the prompt
+   */
+  maxIterations?: number;
 };
 
 /**
@@ -45,6 +49,7 @@ export const create = async (options: CreateOptions) => {
     azureOpenAiKey,
     azureOpenAiEndpoint,
     deploymentId,
+    maxIterations = 10,
   } = options;
   const errors: string[] = [];
   if (!openApiUrl) {
@@ -73,10 +78,9 @@ export const create = async (options: CreateOptions) => {
   });
 
   const callFunction = async (content: string) => {
-    const maxAttempts = 5;
     const messages: ChatMessage[] = [];
     const appendMessage = (msg: ChatMessage) => {
-      logger(ns, 'msg', JSON.stringify(msg, null, 2));
+      logger(ns, 'msg', msg);
       messages.push(msg);
     };
     const openAiClient = new OpenAIClient(
@@ -85,16 +89,11 @@ export const create = async (options: CreateOptions) => {
     );
 
     appendMessage({
-      role: 'system',
-      content:
-        'please use select to narrow the returned results, for example dont select base 64',
-    });
-    appendMessage({
       role: 'user',
       content,
     });
 
-    for (let i = 0; i < maxAttempts; i++) {
+    for (let i = 0; i < maxIterations; i++) {
       try {
         const chatRes = await openAiClient.getChatCompletions(
           deploymentId,
@@ -103,16 +102,24 @@ export const create = async (options: CreateOptions) => {
             functions: functions.slice(0, 5),
           }
         );
-        logger(ns, 'invoked model');
-
         const msg = chatRes.choices[0].message;
-
         if (!msg) {
           logger(ns, 'undefined msg');
           break;
         }
         if (!msg.functionCall) {
-          logger(ns, 'no function call');
+          if (i === 0) {
+            appendMessage({
+              role: msg.role,
+              content: msg.content,
+            });
+            appendMessage({
+              role: 'system',
+              content:
+                'are you sure you have enough data to answer? consider calling a function',
+            });
+            continue;
+          }
           return msg.content;
         }
         appendMessage({
@@ -129,14 +136,14 @@ export const create = async (options: CreateOptions) => {
             headers: { Accept: 'application/json' },
             method: methods[index],
           });
-          logger(ns, 'invoked fn', httpRes.status, 'GET', url);
+          logger(ns, 'invoked fn', httpRes.status + ' GET ' + url);
 
           const text = await httpRes.text();
 
           appendMessage({
             role: 'function',
             name: msg.functionCall?.name ?? '',
-            content: text,
+            content: omitLargeProperties(text),
           });
           if (!httpRes.ok) {
             appendMessage({
