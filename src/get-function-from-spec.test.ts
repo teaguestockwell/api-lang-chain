@@ -150,9 +150,9 @@ describe('getAiParamsFromApiParams', () => {
      * ideally $ odata parameter names are sufficiently descriptive and understood by the deployed model
      * todo: this may need adjusting based on model and api flavor
      */
-    const expected: any = {
-      functions: [
-        {
+    const expected: any = [
+      {
+        openAiDef: {
           name: '0',
           description: 'Get entities from Categories',
           parameters: {
@@ -213,36 +213,7 @@ describe('getAiParamsFromApiParams', () => {
             },
           },
         },
-        {
-          name: '1',
-          description: '',
-          parameters: {
-            type: 'object',
-            properties: {
-              CategoryID: {
-                type: 'integer',
-                format: 'int32',
-              },
-              CategoryName: {
-                type: 'string',
-                maxLength: 15,
-              },
-              Description: {
-                type: 'string',
-                nullable: true,
-              },
-              Picture: {
-                type: 'string',
-                format: 'base64url',
-                nullable: true,
-              },
-            },
-          },
-        },
-      ],
-      paths: ['/Categories', '/Categories'],
-      openApiDefs: [
-        {
+        openApiDef: {
           summary: 'Get entities from Categories',
           parameters: [
             {
@@ -345,7 +316,37 @@ describe('getAiParamsFromApiParams', () => {
             },
           ],
         },
-        {
+        method: 'GET',
+        path: '/Categories',
+      },
+      {
+        openAiDef: {
+          name: '1',
+          description: '',
+          parameters: {
+            type: 'object',
+            properties: {
+              CategoryID: {
+                type: 'integer',
+                format: 'int32',
+              },
+              CategoryName: {
+                type: 'string',
+                maxLength: 15,
+              },
+              Description: {
+                type: 'string',
+                nullable: true,
+              },
+              Picture: {
+                type: 'string',
+                format: 'base64url',
+                nullable: true,
+              },
+            },
+          },
+        },
+        openApiDef: {
           summary: '',
           requestBody: {
             content: {
@@ -378,13 +379,13 @@ describe('getAiParamsFromApiParams', () => {
             },
           },
         },
-      ],
-      methods: ['GET', 'POST'],
-    };
+        method: 'POST',
+        path: '/Categories',
+      },
+    ];
     const logger = jest.fn();
 
     const actual = getFunctionsFromSpec({ logger, spec: given as any });
-    console.log(JSON.stringify(actual, null, 2));
 
     expect(actual).toEqual(expected);
   });

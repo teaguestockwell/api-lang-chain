@@ -11,10 +11,12 @@ export type GetFunctionFromSpec = {
 
 export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
   const { logger, spec } = options;
-  const functions: FunctionDefinition[] = [];
-  const paths: string[] = [];
-  const methods: string[] = [];
-  const openApiDefs: object[] = [];
+  const fns: {
+    openAiDef: FunctionDefinition;
+    path: string;
+    method: string;
+    openApiDef: object;
+  }[] = [];
   const meta = { success: 0, error: 0, id: Date.now(), count: 0 };
 
   for (const pathK of Object.keys(spec.paths)) {
@@ -29,8 +31,8 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
         continue;
       }
       try {
-        const args = spec.paths[pathK][pathKK];
-        const { parameters, summary, requestBody } = args;
+        const openApiDef = spec.paths[pathK][pathKK];
+        const { parameters, summary, requestBody } = openApiDef;
         const propBag = (() => {
           if (parameters) {
             return parameters;
@@ -48,7 +50,7 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
           }
           return propBag;
         })();
-        const next: FunctionDefinition = {
+        const openAiDef: FunctionDefinition = {
           name: meta.count + '',
           description: summary,
           parameters: {
@@ -64,10 +66,12 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
             ),
           },
         };
-        paths.push(pathK);
-        methods.push(pathKK.toUpperCase());
-        openApiDefs.push(args);
-        functions.push(next);
+        fns.push({
+          openAiDef,
+          openApiDef,
+          method: pathKK.toUpperCase(),
+          path: pathK,
+        });
         meta.success++;
       } catch (e) {
         logger(ns, 'skipping function', e, spec.paths[pathK][pathKK]);
@@ -76,7 +80,7 @@ export const getFunctionsFromSpec = (options: GetFunctionFromSpec) => {
     }
   }
 
-  logger(ns, 'built functions', meta, functions, openApiDefs);
+  logger(ns, 'built functions', meta, fns);
 
-  return { functions, paths, openApiDefs, methods };
+  return fns;
 };

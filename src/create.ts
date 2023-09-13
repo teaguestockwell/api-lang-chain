@@ -72,7 +72,7 @@ export const create = async (options: CreateOptions) => {
 
   await validateOpenApi({ openApiUrl, httpClient, logger });
   const spec = await getOpenApiSpec({ openApiUrl, httpClient, logger });
-  const { functions, paths, methods } = getFunctionsFromSpec({
+  const functionsMeta = getFunctionsFromSpec({
     spec,
     logger,
   });
@@ -99,7 +99,7 @@ export const create = async (options: CreateOptions) => {
           deploymentId,
           messages,
           {
-            functions: functions.slice(0, 5),
+            functions: functionsMeta.slice(0, 5).map((e) => e.openAiDef),
           }
         );
         const msg = chatRes.choices[0].message;
@@ -128,13 +128,13 @@ export const create = async (options: CreateOptions) => {
           content: msg.functionCall.arguments,
         });
 
-        const index = +msg.functionCall.name;
-        if (methods[index] === 'GET') {
+        const fn = functionsMeta[+msg.functionCall.name];
+        if (fn.method === 'GET') {
           const qs = toQueryString(JSON.parse(msg.functionCall.arguments));
-          const url = spec.servers[0].url + paths[index] + qs;
+          const url = spec.servers[0].url + fn.path + qs;
           const httpRes = await httpClient(url, {
             headers: { Accept: 'application/json' },
-            method: methods[index],
+            method: fn.method,
           });
           logger(ns, 'invoked fn', httpRes.status + ' GET ' + url);
 
@@ -162,5 +162,5 @@ export const create = async (options: CreateOptions) => {
     return;
   };
 
-  return { spec, functions, callFunction };
+  return { spec, functions: functionsMeta, callFunction };
 };
